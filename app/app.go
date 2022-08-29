@@ -33,7 +33,14 @@ func Start() {
 	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", dbUser, dbPassword, dbAddress, dbPort, dbName)
 	db, err := gorm.Open(postgres.Open(dbURL), &gorm.Config{})
 
-	fmt.Println("db", db)
+	// initialize repositoryDB
+	userRepo := user.NewUserRepositoryDB(db)
+
+	// initialize service
+	userService := user.NewUserService(userRepo)
+
+	// initialize handler
+	userHandler := user.NewUserHandler(*userService)
 
 	if err != nil {
 		logger.Fatal("Error connection")
@@ -42,7 +49,7 @@ func Start() {
 	router := gin.Default()
 
 	api := router.Group("/api/v1")
-	fmt.Println("api", api)
+	api.POST("/users", userHandler.RegisterUser)
 	routerRun := fmt.Sprintf(":%s", serverPort)
 	router.Run(routerRun)
 }
@@ -66,8 +73,6 @@ func authMiddleware(authService auth.Service, userService user.UserService) gin.
 			response := helper.ResponseAPI(nil, "error", http.StatusUnauthorized, "Unauthorized user!")
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 			return
-		} else {
-			// user, err :=
 		}
 		ctx.Set("currentUser", "user")
 	}

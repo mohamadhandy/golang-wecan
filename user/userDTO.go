@@ -16,6 +16,6 @@ func FormatUser(token string, user User) UserDTO {
 		ID:         user.ID,
 		Occupation: user.Occupation,
 		Token:      token,
-		ImageURL:   user.AvatarFileName,
+		ImageURL:   user.AvatarFieldName,
 	}
 }
