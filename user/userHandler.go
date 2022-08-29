@@ -34,11 +34,8 @@ func (u *userHandler) Login(ctx *gin.Context) {
 		logger.Error("error" + err.Error())
 		ctx.JSON(http.StatusUnprocessableEntity, response)
 	}
-	fmt.Println("Loggedin user id", loggedinUser.ID)
-	fmt.Println("Loggedin user id", loggedinUser)
 	token, err := u.authService.GenerateToken(loggedinUser.ID)
 	if err != nil {
-		fmt.Println("TEST ERROR" + err.Error())
 		response := helper.ResponseAPI(nil, "error", http.StatusBadRequest, "Login failed")
 		logger.Error("error" + err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
@@ -62,15 +59,39 @@ func (u *userHandler) RegisterUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-	// generate token, and forced token to db
-	// token, err := u.authService.GenerateToken(newUser.ID)
-	// logger.Info(token)
-	// if err != nil {
-	// 	response := helper.ResponseAPI(nil, "error", http.StatusBadRequest, "Register account failed")
-	// 	ctx.JSON(http.StatusBadRequest, response)
-	// 	return
-	// }
 	dtoUser := FormatUser("", newUser)
 	response := helper.ResponseAPI(dtoUser, "success", http.StatusCreated, "Success Register User!")
 	ctx.JSON(http.StatusCreated, response)
+}
+
+func (u *userHandler) UploadAvatar(ctx *gin.Context) {
+	file, err := ctx.FormFile("avatar")
+	if err != nil {
+		data := gin.H{"is_uploaded": false}
+		response := helper.ResponseAPI(data, "error", http.StatusBadRequest, "Error upload file1")
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	currentUser := ctx.MustGet("currentUser").(User)
+	userId := currentUser.ID
+
+	path := fmt.Sprintf("images/%d-%s", userId, file.Filename)
+
+	err = ctx.SaveUploadedFile(file, path)
+	if err != nil {
+		data := gin.H{"is_uploaded": false}
+		response := helper.ResponseAPI(data, "error", http.StatusBadRequest, "Error upload file2")
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	_, err = u.userService.SaveAvatar(userId, path)
+	if err != nil {
+		data := gin.H{"is_uploaded": false}
+		response := helper.ResponseAPI(data, "error", http.StatusBadRequest, "Error upload file3")
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	data := gin.H{"is_uploaded": true}
+	response := helper.ResponseAPI(data, "success", http.StatusOK, "Success Upload Avatar")
+	ctx.JSON(http.StatusOK, response)
 }

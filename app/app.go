@@ -52,6 +52,7 @@ func Start() {
 	api := router.Group("/api/v1")
 	api.POST("/users", userHandler.RegisterUser)
 	api.POST("/login", userHandler.Login)
+	api.POST("/avatars", authMiddleware(authService, userService), userHandler.UploadAvatar)
 	routerRun := fmt.Sprintf(":%s", serverPort)
 	router.Run(routerRun)
 }
@@ -75,7 +76,14 @@ func authMiddleware(authService auth.Service, userService user.UserService) gin.
 			response := helper.ResponseAPI(nil, "error", http.StatusUnauthorized, "Unauthorized user!")
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 			return
+		} else {
+			user, err := userService.FindUserById(userId)
+			if err != nil {
+				response := helper.ResponseAPI(nil, "error", http.StatusUnauthorized, "Unauthorized user")
+				ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+				return
+			}
+			ctx.Set("currentUser", user)
 		}
-		ctx.Set("currentUser", "user")
 	}
 }

@@ -10,6 +10,7 @@ type UserRepositoryDB interface {
 	RegisterUser(User) (User, error)
 	FindUserById(int) (User, error)
 	FindUserByEmail(string) (User, error)
+	UpdateUser(User) (User, error)
 }
 
 type userRepositoryDB struct {
@@ -42,8 +43,16 @@ func (u *userRepositoryDB) FindUserByEmail(email string) (User, error) {
 func (u *userRepositoryDB) FindUserById(id int) (User, error) {
 	var err error
 	var user User
-	if err = u.db.Where("user_id ? = ", id).Find(&user).Error; err != nil {
+	if err = u.db.Where("user_id = ?", id).Find(&user).Error; err != nil {
 		logger.Error("Unexpected DB error" + err.Error())
+		return user, err
+	}
+	return user, nil
+}
+
+func (u *userRepositoryDB) UpdateUser(user User) (User, error) {
+	var err error
+	if err = u.db.Save(&user).Error; err != nil {
 		return user, err
 	}
 	return user, nil
