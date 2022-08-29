@@ -2,8 +2,13 @@ package app
 
 import (
 	"fmt"
+	"kitabisa/auth"
+	"kitabisa/helper"
 	"kitabisa/logger"
+	"kitabisa/user"
+	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -40,4 +45,30 @@ func Start() {
 	fmt.Println("api", api)
 	routerRun := fmt.Sprintf(":%s", serverPort)
 	router.Run(routerRun)
+}
+
+func authMiddleware(authService auth.Service, userService user.UserService) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		authHeader := ctx.GetHeader("Authorization")
+		if !strings.Contains(authHeader, "Bearer") {
+			response := helper.ResponseAPI(nil, "error", http.StatusUnauthorized, "Unauthorized user!")
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+			return
+		}
+		// Bearer Token
+		tokenString := ""
+		arrayToken := strings.Split(authHeader, " ")
+		if len(arrayToken) == 2 {
+			tokenString = arrayToken[1]
+		}
+		ok, userId, err := authService.ValidateToken(tokenString)
+		if err != nil && !ok && userId == -1 {
+			response := helper.ResponseAPI(nil, "error", http.StatusUnauthorized, "Unauthorized user!")
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+			return
+		} else {
+			// user, err :=
+		}
+		ctx.Set("currentUser", "user")
+	}
 }
