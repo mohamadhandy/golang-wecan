@@ -9,6 +9,7 @@ import (
 type UserRepositoryDB interface {
 	RegisterUser(User) (User, error)
 	FindUserById(int) (User, error)
+	FindUserByEmail(string) (User, error)
 }
 
 type userRepositoryDB struct {
@@ -23,6 +24,16 @@ func (u *userRepositoryDB) RegisterUser(user User) (User, error) {
 	var err error
 	if err = u.db.Create(&user).Error; err != nil {
 		logger.Error("Unexpected DB error!" + err.Error())
+		return user, err
+	}
+	return user, nil
+}
+
+func (u *userRepositoryDB) FindUserByEmail(email string) (User, error) {
+	var err error
+	var user User
+	if err = u.db.Where("email = ?", email).Find(&user).Error; err != nil {
+		logger.Error("Unexpected DB error" + err.Error())
 		return user, err
 	}
 	return user, nil

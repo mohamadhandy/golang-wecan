@@ -10,6 +10,7 @@ import (
 type UserService interface {
 	RegisterUser(RegisterUserInput) (User, error)
 	FindUserById(int) (User, error)
+	Login(LoginInput) (User, error)
 }
 
 type userService struct {
@@ -46,6 +47,24 @@ func (us *userService) FindUserById(id int) (User, error) {
 	if user.ID == 0 {
 		logger.Error("user not found")
 		return user, errors.New("user not found")
+	}
+	return user, nil
+}
+
+func (us *userService) Login(input LoginInput) (User, error) {
+	email := input.Email
+	password := input.Password
+
+	user, err := us.userRepositoryDB.FindUserByEmail(email)
+	if err != nil {
+		return user, err
+	}
+	if user.ID == 0 {
+		return user, errors.New("user not found")
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
+	if err != nil {
+		return user, err
 	}
 	return user, nil
 }

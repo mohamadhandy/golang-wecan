@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"os"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -24,10 +25,12 @@ func NewService() *JwtService {
 }
 
 func (s *JwtService) GenerateToken(userId int) (string, error) {
+	fmt.Println("TOKEN LOGIN", userId)
 	claim := JwtService{}
 	claim.UserId = userId
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
+	fmt.Println("TOKEN", token)
 	signedToken, err := token.SignedString(SECRET_KEY)
 	if err != nil {
 		return signedToken, err

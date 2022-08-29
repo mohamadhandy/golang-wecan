@@ -38,9 +38,10 @@ func Start() {
 
 	// initialize service
 	userService := user.NewUserService(userRepo)
+	authService := auth.NewService()
 
 	// initialize handler
-	userHandler := user.NewUserHandler(*userService)
+	userHandler := user.NewUserHandler(*userService, authService)
 
 	if err != nil {
 		logger.Fatal("Error connection")
@@ -50,6 +51,7 @@ func Start() {
 
 	api := router.Group("/api/v1")
 	api.POST("/users", userHandler.RegisterUser)
+	api.POST("/login", userHandler.Login)
 	routerRun := fmt.Sprintf(":%s", serverPort)
 	router.Run(routerRun)
 }
