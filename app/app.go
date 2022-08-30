@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"kitabisa/auth"
+	"kitabisa/campaign"
 	"kitabisa/helper"
 	"kitabisa/logger"
 	"kitabisa/user"
@@ -35,13 +36,16 @@ func Start() {
 
 	// initialize repositoryDB
 	userRepo := user.NewUserRepositoryDB(db)
+	campaignRepo := campaign.NewCampaignRepositoryDB(db)
 
 	// initialize service
 	userService := user.NewUserService(userRepo)
 	authService := auth.NewService()
+	campaignService := campaign.NewCampaignService(campaignRepo)
 
 	// initialize handler
 	userHandler := user.NewUserHandler(*userService, authService)
+	campaignHandler := campaign.NewCampaignHandler(campaignService, authService)
 
 	if err != nil {
 		logger.Fatal("Error connection")
@@ -54,6 +58,9 @@ func Start() {
 	api.POST("/login", userHandler.Login)
 	api.GET("/users", authMiddleware(authService, userService), userHandler.FindAllUser)
 	api.POST("/avatars", authMiddleware(authService, userService), userHandler.UploadAvatar)
+
+	// CAMPAIGNS
+	api.GET("/campaigns", authMiddleware(authService, userService), campaignHandler.FindAllCampaigns)
 	routerRun := fmt.Sprintf(":%s", serverPort)
 	router.Run(routerRun)
 }
