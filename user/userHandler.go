@@ -98,7 +98,7 @@ func (u *userHandler) UploadAvatar(ctx *gin.Context) {
 
 func (u *userHandler) FindAllUser(ctx *gin.Context) {
 	currentUser := ctx.MustGet("currentUser").(User)
-	if currentUser.ID != 0 {
+	if currentUser.ID != 0 && currentUser.Role == "Admin" {
 		users, err := u.userService.GetAllByUser()
 		if err != nil {
 			response := helper.ResponseAPI(nil, "error", http.StatusBadRequest, "Error get All by user")
@@ -109,5 +109,9 @@ func (u *userHandler) FindAllUser(ctx *gin.Context) {
 			ctx.JSON(http.StatusOK, response)
 			return
 		}
+	} else {
+		response := helper.ResponseAPI(nil, "error", http.StatusUnauthorized, "You dont have permissions")
+		ctx.JSON(http.StatusUnauthorized, response)
+		return
 	}
 }
