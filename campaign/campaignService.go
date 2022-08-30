@@ -1,9 +1,13 @@
 package campaign
 
-import "kitabisa/logger"
+import (
+	"errors"
+	"kitabisa/logger"
+)
 
 type CampaignService interface {
 	FindAllCampaign() ([]Campaign, error)
+	FindByIdCampaign(int) (Campaign, error)
 }
 
 type campaignService struct {
@@ -21,4 +25,16 @@ func (c *campaignService) FindAllCampaign() ([]Campaign, error) {
 		return campaigns, err
 	}
 	return campaigns, nil
+}
+
+func (c *campaignService) FindByIdCampaign(id int) (Campaign, error) {
+	campaign, err := c.campaignRepositoryDB.FindCampaignById(id)
+	if err != nil {
+		return campaign, err
+	}
+	if campaign.ID == 0 {
+		logger.Error("campaign not found")
+		return campaign, errors.New("campaign not found")
+	}
+	return campaign, nil
 }

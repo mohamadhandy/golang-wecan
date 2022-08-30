@@ -61,6 +61,7 @@ func Start() {
 
 	// CAMPAIGNS
 	api.GET("/campaigns", authMiddleware(authService, userService), campaignHandler.FindAllCampaigns)
+	api.GET("/campaigns/:campaignid", authMiddleware(authService, userService), campaignHandler.FindCampaignById)
 	routerRun := fmt.Sprintf(":%s", serverPort)
 	router.Run(routerRun)
 }

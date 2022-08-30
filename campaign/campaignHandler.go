@@ -5,6 +5,7 @@ import (
 	"kitabisa/helper"
 	"kitabisa/user"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,6 +31,28 @@ func (c *campaignHandler) FindAllCampaigns(ctx *gin.Context) {
 		response := helper.ResponseAPI(campaigns, "error", http.StatusOK, "Success get all campaign")
 		ctx.JSON(http.StatusOK, response)
 		return
+	} else {
+		response := helper.ResponseAPI(nil, "error", http.StatusUnauthorized, "You dont have permissions")
+		ctx.JSON(http.StatusUnauthorized, response)
+		return
+	}
+}
+
+func (c *campaignHandler) FindCampaignById(ctx *gin.Context) {
+	currentUser := ctx.MustGet("currentUser").(user.User)
+	if currentUser.ID != 0 {
+		campaignIDString := ctx.Param("campaignid")
+		campaignId, _ := strconv.Atoi(campaignIDString)
+		campaign, err := c.campaignService.FindByIdCampaign(campaignId)
+		if err != nil {
+			response := helper.ResponseAPI(nil, "error", http.StatusBadRequest, "Error get detail campaign")
+			ctx.JSON(http.StatusBadRequest, response)
+			return
+		} else {
+			response := helper.ResponseAPI(campaign, "error", http.StatusOK, "Success get campaign")
+			ctx.JSON(http.StatusOK, response)
+			return
+		}
 	} else {
 		response := helper.ResponseAPI(nil, "error", http.StatusUnauthorized, "You dont have permissions")
 		ctx.JSON(http.StatusUnauthorized, response)

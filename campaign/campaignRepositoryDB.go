@@ -8,6 +8,7 @@ import (
 
 type CampaignRepositoryDB interface {
 	FindAllCampaign() ([]Campaign, error)
+	FindCampaignById(int) (Campaign, error)
 }
 
 type campaignRepositoryDB struct {
@@ -26,4 +27,14 @@ func (c *campaignRepositoryDB) FindAllCampaign() ([]Campaign, error) {
 		return campaigns, err
 	}
 	return campaigns, nil
+}
+
+func (c *campaignRepositoryDB) FindCampaignById(campaignId int) (Campaign, error) {
+	var err error
+	var campaign Campaign
+	if err = c.db.Where("campaign_id = ?", campaignId).Find(campaign).Error; err != nil {
+		logger.Error("Error" + err.Error())
+		return campaign, err
+	}
+	return campaign, nil
 }
