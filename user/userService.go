@@ -12,6 +12,7 @@ type UserService interface {
 	FindUserById(int) (User, error)
 	Login(LoginInput) (User, error)
 	SaveAvatar(int, string) (User, error)
+	GetAllByUser() ([]User, error)
 }
 
 type userService struct {
@@ -82,4 +83,13 @@ func (us *userService) SaveAvatar(userId int, fileLocation string) (User, error)
 		return updatedUser, err
 	}
 	return updatedUser, nil
+}
+
+func (us *userService) GetAllByUser() ([]User, error) {
+	users, err := us.userRepositoryDB.FindAllUser()
+	if err != nil {
+		logger.Error("Error service")
+		return users, err
+	}
+	return users, nil
 }

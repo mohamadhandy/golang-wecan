@@ -95,3 +95,16 @@ func (u *userHandler) UploadAvatar(ctx *gin.Context) {
 	response := helper.ResponseAPI(data, "success", http.StatusOK, "Success Upload Avatar")
 	ctx.JSON(http.StatusOK, response)
 }
+
+func (u *userHandler) FindAllUser(ctx *gin.Context) {
+	users, err := u.userService.GetAllByUser()
+	if err != nil {
+		response := helper.ResponseAPI(nil, "error", http.StatusBadRequest, "Error get All by user")
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	} else {
+		response := helper.ResponseAPI(users, "success", http.StatusOK, "Success get All User")
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+}

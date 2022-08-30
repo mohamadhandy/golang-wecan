@@ -11,6 +11,7 @@ type UserRepositoryDB interface {
 	FindUserById(int) (User, error)
 	FindUserByEmail(string) (User, error)
 	UpdateUser(User) (User, error)
+	FindAllUser() ([]User, error)
 }
 
 type userRepositoryDB struct {
@@ -56,4 +57,14 @@ func (u *userRepositoryDB) UpdateUser(user User) (User, error) {
 		return user, err
 	}
 	return user, nil
+}
+
+func (u *userRepositoryDB) FindAllUser() ([]User, error) {
+	var err error
+	var users []User
+	if err = u.db.Find(&users).Error; err != nil {
+		logger.Error("Error" + err.Error())
+		return users, err
+	}
+	return users, nil
 }
