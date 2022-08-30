@@ -52,7 +52,7 @@ func Start() {
 	api := router.Group("/api/v1")
 	api.POST("/users", userHandler.RegisterUser)
 	api.POST("/login", userHandler.Login)
-	api.GET("/users", userHandler.FindAllUser)
+	api.GET("/users", authMiddleware(authService, userService), userHandler.FindAllUser)
 	api.POST("/avatars", authMiddleware(authService, userService), userHandler.UploadAvatar)
 	routerRun := fmt.Sprintf(":%s", serverPort)
 	router.Run(routerRun)
