@@ -28,6 +28,7 @@ func (us *userService) RegisterUser(input RegisterUserInput) (User, error) {
 	user.Email = input.Email
 	user.Occupation = input.Occupation
 	user.Name = input.Name
+	user.Role = input.Role
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.MinCost)
 	if err != nil {
 		logger.Error("Unexpected error " + err.Error())
