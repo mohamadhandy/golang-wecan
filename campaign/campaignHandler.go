@@ -59,3 +59,27 @@ func (c *campaignHandler) FindCampaignById(ctx *gin.Context) {
 		return
 	}
 }
+
+func (c *campaignHandler) CreateCampaign(ctx *gin.Context) {
+	currentUser := ctx.MustGet("currentUser").(user.User)
+	if currentUser.ID != 0 {
+		var input CreateCampaignInput
+		err := ctx.ShouldBindJSON(&input)
+		if err != nil {
+			errorMessage := gin.H{"errors": err.Error()}
+			response := helper.ResponseAPI(errorMessage, "error", http.StatusUnprocessableEntity, "Error create campaign1")
+			ctx.JSON(http.StatusUnprocessableEntity, response)
+			return
+		}
+		newCampaign, err := c.campaignService.CreateCampaign(input)
+		if err != nil {
+			response := helper.ResponseAPI(nil, "error", http.StatusBadRequest, "Error create campaign2")
+			ctx.JSON(http.StatusBadRequest, response)
+			return
+		} else {
+			response := helper.ResponseAPI(newCampaign, "success", http.StatusCreated, "Success Create Campaign")
+			ctx.JSON(http.StatusCreated, response)
+			return
+		}
+	}
+}
