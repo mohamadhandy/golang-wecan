@@ -10,6 +10,7 @@ type CampaignRepositoryDB interface {
 	FindAllCampaign() ([]Campaign, error)
 	FindCampaignById(int) (Campaign, error)
 	CreateCampaign(Campaign) (Campaign, error)
+	UpdateCampaign(Campaign) (Campaign, error)
 }
 
 type campaignRepositoryDB struct {
@@ -33,7 +34,7 @@ func (c *campaignRepositoryDB) FindAllCampaign() ([]Campaign, error) {
 func (c *campaignRepositoryDB) FindCampaignById(campaignId int) (Campaign, error) {
 	var err error
 	var campaign Campaign
-	if err = c.db.Where("campaign_id = ?", campaignId).Find(campaign).Error; err != nil {
+	if err = c.db.Where("campaign_id = ?", campaignId).Find(&campaign).Error; err != nil {
 		logger.Error("Error" + err.Error())
 		return campaign, err
 	}
@@ -43,6 +44,15 @@ func (c *campaignRepositoryDB) FindCampaignById(campaignId int) (Campaign, error
 func (c *campaignRepositoryDB) CreateCampaign(campaign Campaign) (Campaign, error) {
 	var err error
 	if err = c.db.Create(&campaign).Error; err != nil {
+		logger.Error("error" + err.Error())
+		return campaign, err
+	}
+	return campaign, nil
+}
+
+func (c *campaignRepositoryDB) UpdateCampaign(campaign Campaign) (Campaign, error) {
+	var err error
+	if err = c.db.Save(campaign).Error; err != nil {
 		logger.Error("error" + err.Error())
 		return campaign, err
 	}

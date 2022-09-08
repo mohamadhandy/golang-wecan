@@ -12,6 +12,7 @@ type CampaignService interface {
 	FindAllCampaign() ([]Campaign, error)
 	FindByIdCampaign(int) (Campaign, error)
 	CreateCampaign(CreateCampaignInput) (Campaign, error)
+	UpdateCampaign(GetCampaignDetailInput, CreateCampaignInput) (Campaign, error)
 }
 
 type campaignService struct {
@@ -61,4 +62,25 @@ func (c *campaignService) CreateCampaign(input CreateCampaignInput) (Campaign, e
 		return newCampaign, err
 	}
 	return newCampaign, nil
+}
+
+func (c *campaignService) UpdateCampaign(inputGet GetCampaignDetailInput, inputCreate CreateCampaignInput) (Campaign, error) {
+	campaign, err := c.campaignRepositoryDB.FindCampaignById(inputGet.ID)
+	if err != nil {
+		return campaign, err
+	}
+	if campaign.UserId != inputCreate.UserId {
+		return campaign, errors.New("not an owner of the campaign")
+	}
+	campaign.CampaignName = inputCreate.Name
+	campaign.Description = inputCreate.Description
+	campaign.ShortDescription = inputCreate.ShortDescription
+	campaign.Perks = inputCreate.Perks
+	campaign.GoalAmount = inputCreate.GoalAmount
+
+	updatedCampaign, err := c.campaignRepositoryDB.UpdateCampaign(campaign)
+	if err != nil {
+		return updatedCampaign, err
+	}
+	return updatedCampaign, nil
 }

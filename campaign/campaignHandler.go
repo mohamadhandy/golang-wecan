@@ -83,3 +83,35 @@ func (c *campaignHandler) CreateCampaign(ctx *gin.Context) {
 		}
 	}
 }
+
+func (c *campaignHandler) UpdateCampaign(ctx *gin.Context) {
+	currentUser := ctx.MustGet("currentUser").(user.User)
+	if currentUser.ID != 0 {
+		var inputID GetCampaignDetailInput
+		idCampaign := ctx.Param("campaignid")
+		campaignId, _ := strconv.Atoi(idCampaign)
+		inputID.ID = campaignId
+		err := ctx.ShouldBindUri(&inputID)
+		if err != nil {
+			response := helper.ResponseAPI(nil, "error", http.StatusBadRequest, err.Error())
+			ctx.JSON(http.StatusBadRequest, response)
+			return
+		}
+		var inputData CreateCampaignInput
+		err = ctx.ShouldBindJSON(&inputData)
+		if err != nil {
+			response := helper.ResponseAPI(nil, "error", http.StatusUnprocessableEntity, "failed to update campaign2")
+			ctx.JSON(http.StatusUnprocessableEntity, response)
+			return
+		}
+		inputData.UserId = currentUser.ID
+		updatedCampaign, err := c.campaignService.UpdateCampaign(inputID, inputData)
+		if err != nil {
+			response := helper.ResponseAPI(nil, "error", http.StatusBadRequest, "failed to update campaign3")
+			ctx.JSON(http.StatusBadRequest, response)
+			return
+		}
+		response := helper.ResponseAPI(updatedCampaign, "success", http.StatusOK, "Success update campaign")
+		ctx.JSON(http.StatusOK, response)
+	}
+}

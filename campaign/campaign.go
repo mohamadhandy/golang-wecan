@@ -16,3 +16,7 @@ type Campaign struct {
 	CreatedAt        time.Time `json:"created_at" gorm:"column:created_at"`
 	UpdatedAt        time.Time `json:"updated_at" gorm:"column:updated_at"`
 }
+
+type GetCampaignDetailInput struct {
+	ID int `uri:"id" binding:"required"`
+}
