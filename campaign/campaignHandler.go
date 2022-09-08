@@ -67,13 +67,13 @@ func (c *campaignHandler) CreateCampaign(ctx *gin.Context) {
 		err := ctx.ShouldBindJSON(&input)
 		if err != nil {
 			errorMessage := gin.H{"errors": err.Error()}
-			response := helper.ResponseAPI(errorMessage, "error", http.StatusUnprocessableEntity, "Error create campaign1")
+			response := helper.ResponseAPI(errorMessage, "error", http.StatusUnprocessableEntity, err.Error())
 			ctx.JSON(http.StatusUnprocessableEntity, response)
 			return
 		}
 		newCampaign, err := c.campaignService.CreateCampaign(input)
 		if err != nil {
-			response := helper.ResponseAPI(nil, "error", http.StatusBadRequest, "Error create campaign2")
+			response := helper.ResponseAPI(nil, "error", http.StatusBadRequest, err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		} else {
