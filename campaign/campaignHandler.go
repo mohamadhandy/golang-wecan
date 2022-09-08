@@ -100,14 +100,14 @@ func (c *campaignHandler) UpdateCampaign(ctx *gin.Context) {
 		var inputData CreateCampaignInput
 		err = ctx.ShouldBindJSON(&inputData)
 		if err != nil {
-			response := helper.ResponseAPI(nil, "error", http.StatusUnprocessableEntity, "failed to update campaign2")
+			response := helper.ResponseAPI(nil, "error", http.StatusUnprocessableEntity, err.Error())
 			ctx.JSON(http.StatusUnprocessableEntity, response)
 			return
 		}
 		inputData.UserId = currentUser.ID
 		updatedCampaign, err := c.campaignService.UpdateCampaign(inputID, inputData)
 		if err != nil {
-			response := helper.ResponseAPI(nil, "error", http.StatusBadRequest, "failed to update campaign3")
+			response := helper.ResponseAPI(nil, "error", http.StatusBadRequest, err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
