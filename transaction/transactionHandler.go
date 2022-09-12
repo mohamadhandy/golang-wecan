@@ -2,6 +2,7 @@ package transaction
 
 import (
 	"kitabisa/helper"
+	"kitabisa/user"
 	"net/http"
 	"strconv"
 
@@ -14,6 +15,19 @@ type transactionHandler struct {
 
 func NewTransactionHandler(service TransactionService) *transactionHandler {
 	return &transactionHandler{service}
+}
+
+func (t *transactionHandler) GetUserTransactions(ctx *gin.Context) {
+	currentUser := ctx.MustGet("currentUser").(user.User)
+	transactions, err := t.transactionService.GetByUserTransactions(currentUser.ID)
+	if err != nil {
+		response := helper.ResponseAPI(nil, "error", http.StatusBadRequest, "Error "+err.Error())
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	} else {
+		response := helper.ResponseAPI(transactions, "success", http.StatusOK, "Success get All transactions "+currentUser.Name)
+		ctx.JSON(http.StatusOK, response)
+	}
 }
 
 func (t *transactionHandler) GetCampaignTransactions(ctx *gin.Context) {

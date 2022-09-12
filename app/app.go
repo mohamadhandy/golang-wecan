@@ -70,6 +70,8 @@ func Start() {
 	api.POST("/campaigns", authMiddleware(authService, userService), campaignHandler.CreateCampaign)
 
 	api.GET("/campaigns/:campaignid/transactions", authMiddleware(authService, userService), transactionHandler.GetCampaignTransactions)
+
+	api.GET("/transactions", authMiddleware(authService, userService), transactionHandler.GetUserTransactions)
 	routerRun := fmt.Sprintf(":%s", serverPort)
 	router.Run(routerRun)
 }

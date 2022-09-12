@@ -12,6 +12,7 @@ type transactionRepository struct {
 
 type TransactionRepositoryDB interface {
 	GetByCampaignID(int) ([]Transaction, error)
+	GetUserTransactions(int) ([]Transaction, error)
 }
 
 func NewTransactionRepositoryDB(db *gorm.DB) *transactionRepository {
@@ -23,6 +24,16 @@ func (t *transactionRepository) GetByCampaignID(campaignID int) ([]Transaction, 
 	var transactions []Transaction
 	if err = t.db.Where("campaign_id = ?", campaignID).Find(&transactions).Error; err != nil {
 		logger.Error("error " + err.Error())
+		return transactions, err
+	}
+	return transactions, nil
+}
+
+func (t *transactionRepository) GetUserTransactions(userID int) ([]Transaction, error) {
+	var err error
+	var transactions []Transaction
+	if err = t.db.Preload("Campaign.CampaignImages", "campaign_images.is_primary = 1").Where("user_id = ?", userID).Find(&transactions).Error; err != nil {
+		logger.Error("error" + err.Error())
 		return transactions, err
 	}
 	return transactions, nil

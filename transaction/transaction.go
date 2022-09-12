@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"kitabisa/campaign"
 	"kitabisa/user"
 	"time"
 )
@@ -13,6 +14,7 @@ type Transaction struct {
 	Status     string `gorm:"column:status"`
 	Code       string `gorm:"column:code"`
 	User       user.User
+	Campaign   campaign.Campaign
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 }
