@@ -1,6 +1,9 @@
 package transaction
 
-import "time"
+import (
+	"kitabisa/user"
+	"time"
+)
 
 type Transaction struct {
 	ID         int    `gorm:"column:transaction_id"`
@@ -9,6 +12,7 @@ type Transaction struct {
 	Amount     int    `gorm:"column:amount"`
 	Status     string `gorm:"column:status"`
 	Code       string `gorm:"column:code"`
+	User       user.User
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 }

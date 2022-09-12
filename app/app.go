@@ -6,6 +6,7 @@ import (
 	"kitabisa/campaign"
 	"kitabisa/helper"
 	"kitabisa/logger"
+	"kitabisa/transaction"
 	"kitabisa/user"
 	"net/http"
 	"os"
@@ -37,15 +38,18 @@ func Start() {
 	// initialize repositoryDB
 	userRepo := user.NewUserRepositoryDB(db)
 	campaignRepo := campaign.NewCampaignRepositoryDB(db)
+	transactionRepo := transaction.NewTransactionRepositoryDB(db)
 
 	// initialize service
 	userService := user.NewUserService(userRepo)
 	authService := auth.NewService()
 	campaignService := campaign.NewCampaignService(campaignRepo)
+	transactionService := transaction.NewTransactionService(*transactionRepo)
 
 	// initialize handler
 	userHandler := user.NewUserHandler(*userService, authService)
 	campaignHandler := campaign.NewCampaignHandler(campaignService, authService)
+	transactionHandler := transaction.NewTransactionHandler(transactionService)
 
 	if err != nil {
 		logger.Fatal("Error connection")
@@ -64,6 +68,8 @@ func Start() {
 	api.GET("/campaigns/:campaignid", authMiddleware(authService, userService), campaignHandler.FindCampaignById)
 	api.PUT("/campaigns/:campaignid", authMiddleware(authService, userService), campaignHandler.UpdateCampaign)
 	api.POST("/campaigns", authMiddleware(authService, userService), campaignHandler.CreateCampaign)
+
+	api.GET("/campaigns/:campaignid/transactions", authMiddleware(authService, userService), transactionHandler.GetCampaignTransactions)
 	routerRun := fmt.Sprintf(":%s", serverPort)
 	router.Run(routerRun)
 }
