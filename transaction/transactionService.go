@@ -6,6 +6,7 @@ import (
 
 type transactionService struct {
 	transactionRepository transactionRepository
+	midtransService       MidtransService
 }
 
 type TransactionService interface {
@@ -14,8 +15,8 @@ type TransactionService interface {
 	CreateTransaction(CreateTransactionInput) (Transaction, error)
 }
 
-func NewTransactionService(tr transactionRepository) *transactionService {
-	return &transactionService{transactionRepository: tr}
+func NewTransactionService(tr transactionRepository, midtransService MidtransService) *transactionService {
+	return &transactionService{tr, midtransService}
 }
 
 func (t *transactionService) GetByCampaignID(input GetCampaignTransactionsInput) ([]Transaction, error) {
@@ -48,5 +49,19 @@ func (t *transactionService) CreateTransaction(input CreateTransactionInput) (Tr
 		logger.Error("error" + err.Error())
 		return newTransaction, err
 	}
+
+	paymentURL, err := t.midtransService.GetPaymentURL(newTransaction, input.User)
+	if err != nil {
+		logger.Error("error" + err.Error())
+		return newTransaction, err
+	}
+	newTransaction.PaymentURL = paymentURL
+
+	newTransaction, err = t.transactionRepository.UpdateTransaction(newTransaction)
+	if err != nil {
+		logger.Error("error" + err.Error())
+		return newTransaction, err
+	}
+
 	return newTransaction, nil
 }

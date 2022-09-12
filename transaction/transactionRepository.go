@@ -14,6 +14,7 @@ type TransactionRepositoryDB interface {
 	GetByCampaignID(int) ([]Transaction, error)
 	GetUserTransactions(int) ([]Transaction, error)
 	CreateTransaction(Transaction) ([]Transaction, error)
+	UpdateTransaction(Transaction) (Transaction, error)
 }
 
 func NewTransactionRepositoryDB(db *gorm.DB) *transactionRepository {
@@ -44,6 +45,15 @@ func (t *transactionRepository) CreateTransaction(transaction Transaction) (Tran
 	err := t.db.Create(&transaction).Error
 	if err != nil {
 		logger.Error("Error create transaction" + err.Error())
+		return transaction, err
+	}
+	return transaction, nil
+}
+
+func (t *transactionRepository) UpdateTransaction(transaction Transaction) (Transaction, error) {
+	err := t.db.Save(&transaction).Error
+	if err != nil {
+		logger.Error("Error Update transaction" + err.Error())
 		return transaction, err
 	}
 	return transaction, nil

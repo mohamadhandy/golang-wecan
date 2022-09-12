@@ -44,7 +44,8 @@ func Start() {
 	userService := user.NewUserService(userRepo)
 	authService := auth.NewService()
 	campaignService := campaign.NewCampaignService(campaignRepo)
-	transactionService := transaction.NewTransactionService(*transactionRepo)
+	paymentService := transaction.NewMidTransService()
+	transactionService := transaction.NewTransactionService(*transactionRepo, paymentService)
 
 	// initialize handler
 	userHandler := user.NewUserHandler(*userService, authService)

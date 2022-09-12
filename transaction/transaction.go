@@ -13,6 +13,7 @@ type Transaction struct {
 	Amount     int    `gorm:"column:amount"`
 	Status     string `gorm:"column:status"`
 	Code       string `gorm:"column:code"`
+	PaymentURL string `gorm:"column:payment_url"`
 	User       user.User
 	Campaign   campaign.Campaign
 	CreatedAt  time.Time
