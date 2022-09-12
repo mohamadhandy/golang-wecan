@@ -13,6 +13,7 @@ type transactionRepository struct {
 type TransactionRepositoryDB interface {
 	GetByCampaignID(int) ([]Transaction, error)
 	GetUserTransactions(int) ([]Transaction, error)
+	CreateTransaction(Transaction) ([]Transaction, error)
 }
 
 func NewTransactionRepositoryDB(db *gorm.DB) *transactionRepository {
@@ -37,4 +38,13 @@ func (t *transactionRepository) GetUserTransactions(userID int) ([]Transaction, 
 		return transactions, err
 	}
 	return transactions, nil
+}
+
+func (t *transactionRepository) CreateTransaction(transaction Transaction) (Transaction, error) {
+	err := t.db.Create(&transaction).Error
+	if err != nil {
+		logger.Error("Error create transaction" + err.Error())
+		return transaction, err
+	}
+	return transaction, nil
 }

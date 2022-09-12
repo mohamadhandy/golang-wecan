@@ -11,6 +11,7 @@ type transactionService struct {
 type TransactionService interface {
 	GetByCampaignID(GetCampaignTransactionsInput) ([]Transaction, error)
 	GetByUserTransactions(int) ([]Transaction, error)
+	CreateTransaction(CreateTransactionInput) (Transaction, error)
 }
 
 func NewTransactionService(tr transactionRepository) *transactionService {
@@ -33,4 +34,19 @@ func (t *transactionService) GetByUserTransactions(userID int) ([]Transaction, e
 		return transactions, err
 	}
 	return transactions, nil
+}
+
+func (t *transactionService) CreateTransaction(input CreateTransactionInput) (Transaction, error) {
+	transaction := Transaction{}
+	transaction.CampaignId = input.CampaignId
+	transaction.Amount = input.Amount
+	transaction.UserId = input.User.ID
+	transaction.Status = "pending"
+
+	newTransaction, err := t.transactionRepository.CreateTransaction(transaction)
+	if err != nil {
+		logger.Error("error" + err.Error())
+		return newTransaction, err
+	}
+	return newTransaction, nil
 }

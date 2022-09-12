@@ -50,3 +50,26 @@ func (t *transactionHandler) GetCampaignTransactions(ctx *gin.Context) {
 	response := helper.ResponseAPI(transactions, "success", http.StatusOK, "success get transactions")
 	ctx.JSON(http.StatusOK, response)
 }
+
+func (t *transactionHandler) CreateTransaction(ctx *gin.Context) {
+	var input CreateTransactionInput
+
+	err := ctx.ShouldBindJSON(&input)
+	if err != nil {
+		response := helper.ResponseAPI(nil, "error", http.StatusBadRequest, "Error create transactions"+err.Error())
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	currentUser := ctx.MustGet("currentUser").(user.User)
+	input.User = currentUser
+
+	newTransaction, err := t.transactionService.CreateTransaction(input)
+	if err != nil {
+		response := helper.ResponseAPI(nil, "error", http.StatusBadRequest, "Error create transactions"+err.Error())
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	} else {
+		response := helper.ResponseAPI(newTransaction, "error", http.StatusCreated, "Success Create Transactions")
+		ctx.JSON(http.StatusCreated, response)
+	}
+}
